@@ -14,6 +14,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class RNZendeskBridge extends ReactContextBaseJavaModule {
 
@@ -60,20 +61,54 @@ public class RNZendeskBridge extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void showHelpCenter(ReadableMap options) {
-        UiConfig hcConfig = HelpCenterActivity.builder()
-                .withContactUsButtonVisible(!(options.hasKey("hideContactSupport") && options.getBoolean("hideContactSupport")))
-                .config();
+        ArrayList fields = options.getArray("fields")
+            .stream()
+            .filter(field -> field.hasKey("id") && field.hasKey("value"))
+            .map(filed -> new CustomField(field.getInt("id"), field.getString("value")))
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        UiConfig ticketsConfig = RequestActivity.builder()
+            .withCustomFields(fields)
+            .config();
+
 
         HelpCenterActivity.builder()
-                .show(getReactApplicationContext(), hcConfig);
+            .withContactUsButtonVisible(!(options.hasKey("hideContactSupport") && options.getBoolean("hideContactSupport")))
+            .show(getReactApplicationContext(), ticketsConfig);
     }
-    
+
     @ReactMethod
     public void showNewTicket(ReadableMap options) {
         ArrayList tags = options.getArray("tags").toArrayList();
 
+        ArrayList fields = options.getArray("fields")
+            .stream()
+            .filter(field -> field.hasKey("id") && field.hasKey("value"))
+            .map(filed -> new CustomField(field.getInt("id"), field.getString("value")))
+            .collect(Collectors.toCollection(ArrayList::new));
+
         RequestActivity.builder()
                 .withTags(tags)
+                .withCustomFields(fields)
                 .show(getReactApplicationContext());
+    }
+
+    @ReactMethod
+    public void showTickets(ReadableMap options) {
+        ArrayList tags = options.getArray("tags").toArrayList();
+
+        ArrayList fields = options.getArray("fields")
+            .stream()
+            .filter(field -> field.hasKey("id") && field.hasKey("value"))
+            .map(filed -> new CustomField(field.getInt("id"), field.getString("value")))
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        UiConfig ticketsConfig = RequestActivity.builder()
+                .withTags(tags)
+                .withCustomFields(fields)
+                .config();
+
+        RequestListActivity.builder()
+            .show(getReactApplicationContext(), ticketsConfig);
     }
 }

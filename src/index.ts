@@ -26,8 +26,14 @@ export function identifyAnonymous(name?: string, email?: string) {
 
 // MARK: - UI Methods
 
+interface CustomField {
+  id: number
+  value: number | string | boolean
+}
+
 interface HelpCenterOptions {
   hideContactSupport?: boolean
+  fields?: CustomField[]
 }
 
 export function showHelpCenter(options: HelpCenterOptions) {
@@ -36,8 +42,13 @@ export function showHelpCenter(options: HelpCenterOptions) {
 
 interface NewTicketOptions {
   tags?: string[]
+  fields?: CustomField[]
 }
 
 export function showNewTicket(options: NewTicketOptions) {
+  RNZendesk.showNewTicket(options)
+}
+
+export function showTickets(options: NewTicketOptions) {
   RNZendesk.showNewTicket(options)
 }
